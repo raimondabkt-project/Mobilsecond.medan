@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Kelola Mobil Favorit - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Kelola Mobil Favorit</h2>
+            <p class="text-muted">Centang mobil yang ingin ditampilkan di halaman <strong>/favorit</strong></p>
+        </div>
+        <a href="{{ url_for('main.dashboard_admin') }}" class="btn btn-outline-secondary">
+            ← Kembali ke Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Daftar Mobil 
+                <span class="badge bg-danger">{{ favorite_count }} Favorit</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="60">Pilih</th>
+                                <th>Kode</th>
+                                <th>Mobil</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                                <th>Favorit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mobil in mobil_list %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" 
+                                           name="favorite" 
+                                           value="{{ mobil.id }}"
+                                           {% if mobil.is_favorite %}checked{% endif %}>
+                                </td>
+                                <td><strong>{{ mobil.kode_mobil }}</strong></td>
+                                <td>{{ mobil.merek }} {{ mobil.model }} ({{ mobil.tahun }})</td>
+                                <td>{{ mobil.harga | format_rupiah }}</td>
+                                <td>
+                                    {% if mobil.status == 'Ready' %}
+                                        <span class="badge bg-success">Tersedia</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ mobil.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if mobil.is_favorite %}
+                                        <span class="badge bg-danger">Ya</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Tidak</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                    <small class="text-muted ms-3">Mobil yang dicentang akan tampil di halaman /favorit</small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

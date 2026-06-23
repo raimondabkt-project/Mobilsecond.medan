@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Mobil Second Medan{% endblock %}
+
+{% block extra_css %}
+<style>
+    body, html { 
+        height: 100%; 
+        margin: 0; 
+        font-family: 'Segoe UI', system-ui, sans-serif; 
+    }
+
+    .split-container { 
+        display: flex; 
+        min-height: 100vh;
+        padding-top: 70px;
+    }
+
+    .left-side {
+        flex: 6;
+        background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.78)),
+                    url('{{ url_for('static', filename='images/background.jpg.png') }}') center/cover no-repeat;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .welcome-text {
+        color: white;
+        padding: 0 60px;
+        z-index: 5;
+    }
+    .welcome-text h1 {
+        font-size: 4.2rem;
+        font-weight: 700;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.85);
+    }
+    .welcome-text p {
+        font-size: 1.5rem;
+        opacity: 0.95;
+    }
+
+    .right-side {
+        flex: 4;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        max-width: 420px;
+        width: 100%;
+        padding: 40px 35px;
+        border: 3px solid #28a745;
+    }
+
+    .role-selection {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .role-btn {
+        flex: 1;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 16px 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .role-btn:hover {
+        border-color: #28a745;
+        background-color: #f8f9fa;
+    }
+
+    .role-btn.active {
+        border-color: #28a745;
+        background-color: #e8f5e9;
+    }
+
+    .role-btn i {
+        font-size: 1.7rem;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .form-section {
+        display: none;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 13px 16px;
+        border: 2px solid #ddd;
+    }
+
+    /* ==================== RESPONSIVE HP ==================== */
+    @media (max-width: 768px) {
+        .split-container {
+            flex-direction: column;
+            padding-top: 60px;
+        }
+        .left-side {
+            display: none; /* Sembunyikan background di HP */
+        }
+        .right-side {
+            flex: 1;
+            padding: 30px 15px;
+            min-height: auto;
+        }
+        .login-card {
+            max-width: 100%;
+            padding: 30px 25px;
+            border-width: 2px;
+        }
+        .welcome-text h1 {
+            font-size: 2.8rem;
+        }
+        .role-btn {
+            padding: 14px 6px;
+        }
+        .role-btn i {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="split-container">
+    
+    <!-- Kiri - Background (Desktop Only) -->
+    <div class="left-side">
+        <div class="welcome-text">
+            <h1>Halo!</h1>
+            <p>Selamat Datang di<br>Mobil Second Medan</p>
+        </div>
+    </div>
+
+    <!-- Kanan - Form Login -->
+    <div class="right-side">
+        <div class="login-card">
+            <div class="text-center mb-4">
+                <h4 class="fw-bold">Login</h4>
+                <p class="text-muted">Pilih role terlebih dahulu</p>
+            </div>
+
+            <!-- PILIHAN ROLE -->
+            <div class="role-selection">
+                <div class="role-btn" onclick="selectRole('admin', this)">
+                    <i class="fas fa-user-shield text-primary"></i>
+                    <div><strong>Admin</strong></div>
+                </div>
+                <div class="role-btn" onclick="selectRole('seller', this)">
+                    <i class="fas fa-store text-success"></i>
+                    <div><strong>Seller</strong></div>
+                </div>
+                <div class="role-btn" onclick="selectRole('buyer', this)">
+                    <i class="fas fa-user text-warning"></i>
+                    <div><strong>Buyer</strong></div>
+                </div>
+            </div>
+
+            <!-- FORM -->
+            <div id="formSection" class="form-section">
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <input type="hidden" name="role" id="selectedRole" value="">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                        <i class="fas fa-sign-in-alt me-2"></i> Masuk
+                    </button>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-question-circle me-1"></i> Lupa password?
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">Belum punya akun? 
+                    <a href="{{ url_for('auth.register') }}" class="text-success fw-bold">Daftar sebagai Buyer</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectRole(role, element) {
+        document.querySelectorAll('.role-btn').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('selectedRole').value = role;
+        document.getElementById('formSection').style.display = 'block';
+    }
+</script>
+{% endblock %}

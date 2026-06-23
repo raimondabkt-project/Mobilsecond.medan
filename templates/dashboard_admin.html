@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Admin - Mobil Second Medan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h2 class="fw-bold mb-1">Dashboard Admin</h2>
+    <p class="text-muted">Kelola data mobil dan seller</p>
+
+    <!-- WhatsApp Admin -->
+    <div class="card shadow-sm mb-4" style="max-width: 520px;">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="fab fa-whatsapp text-success me-2"></i> Nomor WhatsApp Admin</h6>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.update_whatsapp') }}" method="POST">
+                <div class="input-group">
+                    <span class="input-group-text">+62</span>
+                    <input type="text" name="whatsapp_number" class="form-control" 
+                           value="{{ current_user.whatsapp_number or '' }}" placeholder="81234567890">
+                    <button type="submit" class="btn btn-success">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tombol Kelola Favorit -->
+    <div class="mb-4">
+        <a href="{{ url_for('main.kelola_favorit') }}" class="btn btn-outline-danger">
+            <i class="fas fa-heart me-2"></i> Kelola Mobil Favorit
+        </a>
+    </div>
+
+    <!-- Statistik -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h6 class="text-muted mb-1">Total Unit</h6>
+                <h3 class="fw-bold text-primary">{{ mobils|length }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3 shadow-sm border-start border-success border-4">
+                <h6 class="text-muted mb-1">Tersedia</h6>
+                <h3 class="fw-bold text-success">{{ mobils | selectattr('status', 'equalto', 'Ready') | list | length }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3 shadow-sm border-start border-warning border-4">
+                <h6 class="text-muted mb-1">Terpanjar</h6>
+                <h3 class="fw-bold text-warning">{{ mobils | selectattr('status', 'equalto', 'Terpanjar') | list | length }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3 shadow-sm border-start border-danger border-4">
+                <h6 class="text-muted mb-1">Terjual</h6>
+                <h3 class="fw-bold text-danger">{{ mobils | selectattr('status', 'equalto', 'Terjual') | list | length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Mobil -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Pengelola Unit Mobil</h5>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUnit">
+                <i class="fas fa-plus me-1"></i> Tambah Unit
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Kode</th>
+                            <th>Mobil</th>
+                            <th class="d-none d-md-table-cell">Tahun</th>
+                            <th>Harga</th>
+                            <th>Status</th>
+                            <th class="d-none d-lg-table-cell">Ditambahkan</th>
+                            <th class="text-center">Rekomendasi</th>
+                            <th class="text-center">Aksi Rekomendasi</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mobil in mobils %}
+                        <tr>
+                            <td><strong>{{ mobil.kode_mobil }}</strong></td>
+                            <td>{{ mobil.merek }} {{ mobil.model }}</td>
+                            <td class="d-none d-md-table-cell">{{ mobil.tahun }}</td>
+                            <td>{{ mobil.harga | format_rupiah }}</td>
+                            
+                            <td>
+                                <form action="{{ url_for('main.ubah_status', id=mobil.id) }}" method="POST" class="d-flex gap-1">
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="Ready" {% if mobil.status == 'Ready' %}selected{% endif %}>Ready</option>
+                                        <option value="Terpanjar" {% if mobil.status == 'Terpanjar' %}selected{% endif %}>Terpanjar</option>
+                                        <option value="Terjual" {% if mobil.status == 'Terjual' %}selected{% endif %}>Terjual</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Ubah</button>
+                                </form>
+                            </td>
+
+                            <td class="d-none d-lg-table-cell">
+                                {% if mobil.uploaded_by_role == 'seller' %}
+                                    <span class="badge bg-info">Seller</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Admin</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Rekomendasi -->
+                            <td class="text-center">
+                                {% if mobil.is_recommended %}
+                                    <span class="badge bg-success">Ya</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Tidak</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Aksi Rekomendasi -->
+                            <td class="text-center">
+                                <form action="{{ url_for('main.toggle_recommend', id=mobil.id) }}" method="POST">
+                                    {% if mobil.is_recommended %}
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-times"></i> Batalkan
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Tandai
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+
+                            <!-- Aksi -->
+                            <td class="text-center">
+                                <div class="d-flex flex-wrap justify-content-center gap-1">
+                                    <a href="{{ url_for('main.detail_mobil', model=mobil.model|lower) }}" class="btn btn-sm btn-outline-primary">Lihat</a>
+                                    
+                                    <button type="button" class="btn btn-sm btn-outline-warning btn-edit-admin"
+                                            data-id="{{ mobil.id }}"
+                                            data-kode="{{ mobil.kode_mobil }}"
+                                            data-merek="{{ mobil.merek }}"
+                                            data-model="{{ mobil.model }}"
+                                            data-tahun="{{ mobil.tahun }}"
+                                            data-harga="{{ mobil.harga }}"
+                                            data-kilometer="{{ mobil.kilometer }}"
+                                            data-transmisi="{{ mobil.transmisi }}"
+                                            data-deskripsi="{{ mobil.deskripsi|default('') }}">
+                                        Ubah
+                                    </button>
+
+                                    <a href="{{ url_for('main.hapus_unit', id=mobil.id) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Hapus mobil ini?')">Hapus</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Seller -->
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Pengelola Data Seller</h5>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahSeller">
+                <i class="fas fa-plus me-1"></i> Tambah Seller
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for seller in sellers %}
+                        <tr>
+                            <td>{{ seller.nama }}</td>
+                            <td>{{ seller.email }}</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-warning btn-edit-seller"
+                                            data-id="{{ seller.id }}"
+                                            data-nama="{{ seller.nama }}"
+                                            data-email="{{ seller.email }}">
+                                        Ubah
+                                    </button>
+                                    <a href="{{ url_for('main.hapus_seller', id=seller.id) }}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Hapus seller ini?')">Hapus</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal Tambah Unit -->
+<div class="modal fade" id="modalTambahUnit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Unit Mobil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.tambah_unit') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Kode Mobil</label>
+                            <input type="text" name="kode_mobil" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Merek</label>
+                            <input type="text" name="merek" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Model</label>
+                            <input type="text" name="model" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Tahun</label>
+                            <input type="number" name="tahun" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Harga (Rp)</label>
+                            <input type="number" name="harga" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Kilometer</label>
+                            <input type="number" name="kilometer" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Transmisi</label>
+                            <select name="transmisi" class="form-select" required>
+                                <option value="Matic">Matic</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Upload Foto</label>
+                            <input type="file" name="gambar" multiple class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label>Deskripsi</label>
+                            <textarea name="deskripsi" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Unit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Seller -->
+<div class="modal fade" id="modalTambahSeller" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Seller</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.tambah_seller') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Nama Seller</label>
+                        <input type="text" name="nama" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Nomor WhatsApp</label>
+                        <input type="text" name="whatsapp_number" class="form-control" placeholder="62812xxxxxxx" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Simpan Seller</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Unit -->
+<div class="modal fade" id="modalEditUnit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Unit Mobil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditUnit" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_id" name="id">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Kode Mobil</label>
+                            <input type="text" id="edit_kode_mobil" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Merek</label>
+                            <input type="text" id="edit_merek" name="merek" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Model</label>
+                            <input type="text" id="edit_model" name="model" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Tahun</label>
+                            <input type="number" id="edit_tahun" name="tahun" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Harga</label>
+                            <input type="number" id="edit_harga" name="harga" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Kilometer</label>
+                            <input type="number" id="edit_kilometer" name="kilometer" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Transmisi</label>
+                            <select id="edit_transmisi" name="transmisi" class="form-select" required>
+                                <option value="Matic">Matic</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Ganti Foto (opsional)</label>
+                            <input type="file" name="gambar" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label>Deskripsi</label>
+                            <textarea id="edit_deskripsi" name="deskripsi" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Seller -->
+<div class="modal fade" id="modalEditSeller" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Data Seller</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditSeller" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_seller_id" name="id">
+                    <div class="mb-3">
+                        <label>Nama Seller</label>
+                        <input type="text" id="edit_seller_nama" name="nama" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" id="edit_seller_email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Password Baru (kosongkan jika tidak ingin mengubah)</label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Edit Mobil
+    document.querySelectorAll('.btn-edit-admin').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const kode = this.dataset.kode;
+            const merek = this.dataset.merek;
+            const model = this.dataset.model;
+            const tahun = this.dataset.tahun;
+            const harga = this.dataset.harga;
+            const kilometer = this.dataset.kilometer;
+            const transmisi = this.dataset.transmisi;
+            const deskripsi = this.dataset.deskripsi || '';
+
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_kode_mobil').value = kode;
+            document.getElementById('edit_merek').value = merek;
+            document.getElementById('edit_model').value = model;
+            document.getElementById('edit_tahun').value = tahun;
+            document.getElementById('edit_harga').value = harga;
+            document.getElementById('edit_kilometer').value = kilometer;
+            document.getElementById('edit_transmisi').value = transmisi;
+            document.getElementById('edit_deskripsi').value = deskripsi;
+
+            document.getElementById('formEditUnit').action = `/admin/edit-unit/${id}`;
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditUnit'));
+            modal.show();
+        });
+    });
+
+    // Edit Seller
+    document.querySelectorAll('.btn-edit-seller').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const nama = this.dataset.nama;
+            const email = this.dataset.email;
+
+            document.getElementById('edit_seller_id').value = id;
+            document.getElementById('edit_seller_nama').value = nama;
+            document.getElementById('edit_seller_email').value = email;
+
+            document.getElementById('formEditSeller').action = `/admin/edit-seller/${id}`;
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditSeller'));
+            modal.show();
+        });
+    });
+});
+</script>
+{% endblock %}

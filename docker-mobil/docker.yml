@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+   web:
+    build: .
+    container_name: mobilsecond_web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=mysql+mysqlconnector://root:yourpassword@db:3306/mobilsecond_db
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    depends_on:
+      - db
+      - elasticsearch
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    command: python -c "from app import create_app; create_app().run(host='0.0.0.0', port=5000, debug=False)"
+
+  db:
+    image: mysql:8.0
+    container_name: mobilsecond_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_DATABASE: mobilsecond_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: mobilsecond_elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+volumes:
+  db_data:
+  es_data:

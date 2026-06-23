@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ mobil.merek }} {{ mobil.model }} - Mobil Second Medan{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5 pt-5">
+    <div class="row">
+        
+        <!-- ==================== SLIDER FOTO MOBIL ==================== -->
+        {% if mobil.fotos and mobil.fotos|length > 0 %}
+        <div id="carCarousel" class="carousel slide mb-4 shadow" data-bs-ride="carousel">
+            <div class="carousel-inner rounded" style="height: 480px; overflow: hidden;">
+                {% for foto in mobil.fotos|sort(attribute='urutan') %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='uploads/' + foto.nama_file) }}" 
+                         class="d-block w-100" 
+                         style="height: 480px; object-fit: cover;"
+                         alt="Foto {{ mobil.merek }} {{ mobil.model }}">
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Tombol Navigasi -->
+            {% if mobil.fotos|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#carCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            {% endif %}
+        </div>
+        {% else %}
+            <!-- Jika tidak ada foto -->
+            <img src="{{ url_for('static', filename='images/default.jpg') }}" 
+                 class="img-fluid rounded shadow mb-4" 
+                 style="height: 480px; object-fit: cover; width: 100%;"
+                 alt="Foto mobil">
+        {% endif %}
+        <!-- ======================================================== -->
+
+        <!-- ==================== INFORMASI MOBIL ==================== -->
+        <div class="col-lg-5">
+            <h1 class="display-5 fw-bold">{{ mobil.merek }} {{ mobil.model }}</h1>
+            
+            <!-- Harga -->
+            <h2 class="price fw-bold text-success">
+                {{ mobil.harga | format_rupiah }}
+            </h2>
+
+            <!-- Spesifikasi Singkat -->
+            <div class="row text-center my-4">
+                <div class="col-4">
+                    <div class="p-3 border rounded">
+                        <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                        <p class="mb-0 fw-bold">{{ mobil.tahun }}</p>
+                        <small class="text-muted">Tahun</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3 border rounded">
+                        <i class="fas fa-tachometer-alt fa-2x text-primary mb-2"></i>
+                        <p class="mb-0 fw-bold">{{ mobil.kilometer }} km</p>
+                        <small class="text-muted">Kilometer</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3 border rounded">
+                        <i class="fas fa-cog fa-2x text-primary mb-2"></i>
+                        <p class="mb-0 fw-bold">{{ mobil.transmisi }}</p>
+                        <small class="text-muted">Transmisi</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deskripsi -->
+            <h5 class="fw-bold mt-4">Deskripsi Mobil</h5>
+            <p class="lead" style="line-height: 1.7;">
+                {{ mobil.deskripsi | default('Mobil dalam kondisi prima, mesin halus, interior bersih, dan surat-surat lengkap.') }}
+            </p>
+
+            <!-- Keunggulan -->
+            <h5 class="fw-bold mt-4">Keunggulan Mobil Ini</h5>
+            <ul class="list-unstyled">
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Kondisi mesin & body sangat terawat</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Surat-surat lengkap & pajak hidup</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Bisa test drive kapan saja</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Harga paling kompetitif di Medan</li>
+            </ul>
+
+            <!-- ==================== HUBUNGI SELLER ==================== -->
+            {% if current_user.is_authenticated %}
+
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fab fa-whatsapp text-success me-2"></i> 
+                        Hubungi Seller
+                    </h6>
+
+                    {% if sellers and sellers|length > 0 %}
+                        {% for seller in sellers %}
+                            {% if seller.whatsapp_number %}
+                                {% set wa_text = "Halo " ~ seller.nama ~ ", saya tertarik dengan mobil " ~ mobil.merek ~ " " ~ mobil.model ~ " tahun " ~ mobil.tahun ~ " (" ~ mobil.kode_mobil ~ "). Apakah masih tersedia?" %}
+                                
+                                <a href="https://wa.me/{{ seller.whatsapp_number }}?text={{ wa_text | urlencode }}" 
+                                   target="_blank" 
+                                   class="btn btn-success w-100 mb-2 d-flex align-items-center justify-content-center py-2">
+                                    <i class="fab fa-whatsapp me-2"></i> 
+                                    Hubungi {{ seller.nama }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-warning py-2">
+                            Belum ada seller yang tersedia saat ini.
+                        </div>
+                    {% endif %}
+                </div>
+
+            {% else %}
+                <div class="alert alert-warning mt-4 text-center">
+                    <i class="fas fa-lock me-2"></i>
+                    Silakan <strong>Login sebagai Buyer</strong> untuk menghubungi seller.
+                </div>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary w-100">
+                    Login / Daftar sebagai Buyer
+                </a>
+            {% endif %}
+            <!-- ============================================================ -->
+
+            <!-- Tombol Kembali -->
+            <a href="{{ url_for('main.katalog') }}" class="btn btn-outline-secondary w-100 mt-3">
+                ← Kembali ke Katalog
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

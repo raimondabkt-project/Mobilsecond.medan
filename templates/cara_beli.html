@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Cara Beli - Mobil Second Medan{% endblock %}
+
+{% block content %}
+
+<!-- Hero Kecil -->
+<section class="hero-small text-center" style="background: linear-gradient(rgba(13,110,253,0.9), rgba(13,110,253,0.9)), url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'); color: white; padding: 160px 0 100px;">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Cara Beli Mobil Bekas</h1>
+        <p class="lead">Proses mudah, transparan, dan aman hanya dalam 4 langkah</p>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Langkah-langkah -->
+        <div class="col-lg-8">
+            <h4 class="fw-bold mb-4">Proses Pembelian Mobil Bekas</h4>
+
+            <div class="step-card card mb-4 p-4">
+                <div class="d-flex align-items-start">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width:50px;height:50px;font-size:1.5rem;">1</div>
+                    <div>
+                        <h5>Buka Katalog & Gunakan Filter</h5>
+                        <p class="text-muted">Cari mobil sesuai keinginan dengan fitur pencarian dan filter.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card card mb-4 p-4">
+                <div class="d-flex align-items-start">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width:50px;height:50px;font-size:1.5rem;">2</div>
+                    <div>
+                        <h5>Lihat Detail Mobil</h5>
+                        <p class="text-muted">Klik “Lihat Detail” untuk melihat spesifikasi lengkap dan foto mobil.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card card mb-4 p-4">
+                <div class="d-flex align-items-start">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width:50px;height:50px;font-size:1.5rem;">3</div>
+                    <div>
+                        <h5>Hubungi Seller via WhatsApp</h5>
+                        <p class="text-muted">Langsung chat seller untuk tanya kondisi dan negosiasi harga.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card card mb-4 p-4">
+                <div class="d-flex align-items-start">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width:50px;height:50px;font-size:1.5rem;">4</div>
+                    <div>
+                        <h5>Deal & Serah Terima</h5>
+                        <p class="text-muted">Setelah deal, lakukan pembayaran dan ambil mobil di showroom Medan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Kontak Cepat -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body p-4 text-center">
+                    <h5 class="fw-bold mb-4">Siap Beli Sekarang?</h5>
+                    <a href="/katalog" class="btn btn-primary btn-lg w-100 mb-3"><i class="fas fa-search"></i> Buka Katalog</a>
+                    <a href="https://wa.me/{{ admin_whatsapp }}?text=Pesan%20otomatis%20di%20sini" 
+                       class="btn btn-success btn-lg w-100" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Chat WhatsApp
+                    </a>
+                    <small class="text-muted d-block mt-4">Atau hubungi kami di 0822-6878-3757</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

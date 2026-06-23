@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Katalog Mobil Bekas - Mobil Second Medan{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5 pt-5">
+    <h2 class="fw-bold mb-4">Katalog Mobil Bekas</h2>
+
+    <div class="row">
+        <!-- Sidebar Filter -->
+        <div class="col-lg-3">
+            <div class="sidebar p-4">
+                <h5 class="fw-bold mb-3">Filter Pencarian</h5>
+                <form id="filterForm">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Merek</label>
+                        {% for merek in merek_list %}
+                        <div class="form-check">
+                            <input type="checkbox" name="merek" value="{{ merek.lower() }}" 
+                                   class="form-check-input merek-checkbox">
+                            <label class="form-check-label">{{ merek }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="btnTerapkan" class="btn btn-primary w-100">Terapkan Filter</button>
+                    <button type="button" id="btnReset" class="btn btn-outline-secondary w-100 mt-2">Reset Filter</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <h5 id="mobilCount" class="mb-3">{{ mobils|length }} Mobil Ditemukan</h5>
+            
+            <div class="row g-4" id="carGrid">
+                {% for mobil in mobils %}
+                <div class="col-6 col-md-4 col-lg-4" data-merek="{{ mobil.merek|lower }}">
+                    <div class="card h-100 shadow-sm border-0">
+
+                        <!-- ==================== GAMBAR MOBIL ==================== -->
+                        {% if mobil.fotos and mobil.fotos|length > 0 %}
+                            {% set foto_utama = mobil.fotos|sort(attribute='urutan')|first %}
+                            <img src="{{ url_for('static', filename='uploads/' + foto_utama.nama_file) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ mobil.merek }} {{ mobil.model }}"
+                                 style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Default Image"
+                                 style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <!-- ==================================================== -->
+
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ mobil.merek }} {{ mobil.model }}</h5>
+                            <p class="card-text text-muted mb-1">{{ mobil.tahun }} • {{ mobil.kilometer }} km</p>
+                            
+                            <h4 class="text-success fw-bold mb-2">{{ mobil.harga | format_rupiah }}</h4>
+
+                            <!-- Status -->
+                            <div class="mb-3">
+                                {% if mobil.status == 'Ready' %}
+                                    <span class="badge bg-success px-3 py-2">Tersedia</span>
+                                {% elif mobil.status == 'Terpanjar' %}
+                                    <span class="badge bg-warning text-dark px-3 py-2">Terpanjar</span>
+                                {% elif mobil.status == 'Terjual' %}
+                                    <span class="badge bg-danger px-3 py-2">Terjual</span>
+                                {% endif %}
+                            </div>
+
+                            <a href="{{ url_for('main.detail_mobil', model=mobil.model|lower) }}" 
+                               class="btn btn-primary w-100">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if mobils|length == 0 %}
+            <div class="alert alert-warning text-center mt-4">
+                Tidak ada mobil yang ditemukan.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- Floating WhatsApp -->
+<a href="https://wa.me/{{ admin_whatsapp }}?text=Halo%20Admin,%20saya%20ingin%20bertanya%20tentang%20mobil." 
+   class="btn btn-success shadow" 
+   target="_blank"
+   style="position: fixed; bottom: 30px; right: 30px; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+    <i class="fab fa-whatsapp fa-2x"></i>
+</a>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const btnTerapkan = document.getElementById('btnTerapkan');
+    const btnReset = document.getElementById('btnReset');
+    const carGrid = document.getElementById('carGrid');
+    const mobilCount = document.getElementById('mobilCount');
+
+    function applyFilter() {
+        const checked = Array.from(document.querySelectorAll('input[name="merek"]:checked'))
+                        .map(cb => cb.value);
+
+        const cards = carGrid.querySelectorAll('.col-6.col-md-4.col-lg-4');
+        let count = 0;
+
+        cards.forEach(card => {
+            const merek = card.getAttribute('data-merek');
+            if (checked.length === 0 || checked.includes(merek)) {
+                card.style.display = '';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        mobilCount.textContent = count + ' Mobil Ditemukan';
+    }
+
+    btnTerapkan.addEventListener('click', applyFilter);
+
+    btnReset.addEventListener('click', () => {
+        document.querySelectorAll('input[name="merek"]').forEach(cb => cb.checked = false);
+        applyFilter();
+    });
+
+    window.addEventListener('load', applyFilter);
+</script>
+{% endblock %}

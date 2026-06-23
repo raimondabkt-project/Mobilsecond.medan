@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Mobil Second Medan - Mobil Bekas Terbaik{% endblock %}
+
+{% block content %}
+
+<!-- ==================== HERO SECTION ==================== -->
+<div class="hero" style="background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), url('{{ url_for('static', filename='images/home.jpg.png') }}') center/cover no-repeat fixed; height: 100vh; display: flex; align-items: center; position: relative;">
+    <div class="container">
+        <div class="row justify-content-center text-center text-white">
+            <div class="col-lg-10">
+                <h1 class="display-3 fw-bold mb-3" style="text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
+                    Mobil Bekas Terbaik di Medan
+                </h1>
+                <p class="lead mb-4" style="font-size: 1.4rem; opacity: 0.95;">
+                    Temukan mobil impian Anda dengan pencarian cerdas
+                </p>
+
+                <div class="mx-auto" style="max-width: 620px;">
+                    <form action="/katalog" method="get" class="input-group shadow-lg" style="border-radius: 50px; overflow: hidden;">
+                        <input type="text" name="q" class="form-control form-control-lg border-0" 
+                               placeholder="Cari mobil kesayangan anda disini... " 
+                               style="padding: 18px 25px; font-size: 1.1rem;">
+                        <button type="submit" class="btn btn-primary px-5" 
+                                style="border-radius: 0 50px 50px 0; font-weight: 600;">
+                            Cari
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== REKOMENDASI MOBIL TERBAIK ==================== -->
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Rekomendasi Mobil Terbaik</h2>
+        <p class="lead text-muted">Pilihan mobil bekas terbaik dan paling laris di Mobil Second Medan</p>
+    </div>
+
+    <div class="row g-4">
+        {% for car in recommended %}
+        <div class="col-6 col-md-4 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 recommendation-card">
+                
+                <!-- ==================== GAMBAR REKOMENDASI (Multiple Foto) ==================== -->
+                {% if car.fotos and car.fotos|length > 0 %}
+                    {% set foto_utama = car.fotos|sort(attribute='urutan')|first %}
+                    <img src="{{ url_for('static', filename='uploads/' + foto_utama.nama_file) }}" 
+                         class="card-img-top" 
+                         alt="{{ car.merek }} {{ car.model }}"
+                         style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/default.jpg') }}" 
+                         class="card-img-top" 
+                         alt="Default Image"
+                         style="height: 250px; object-fit: cover;">
+                {% endif %}
+                <!-- ======================================================================== -->
+
+                <div class="card-body text-center p-4">
+                    <h5 class="card-title fw-bold mb-2">{{ car.merek }} {{ car.model }}</h5>
+                    
+                    <h4 class="text-success fw-bold mb-3">
+                        {{ car.harga | format_rupiah }}
+                    </h4>
+
+                    <a href="{{ url_for('main.detail_mobil', model=car.model|lower) }}" 
+                       class="btn btn-primary w-100 py-2 fw-semibold">
+                        Lihat Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-light text-center py-4">
+                Belum ada mobil yang direkomendasikan.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- ============================================================ -->
+
+<!-- ==================== STYLE UNTUK EFEK HOVER ==================== -->
+<style>
+    .recommendation-card {  
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .recommendation-card .card-img-top {
+        transition: transform 0.4s ease;
+    }
+    
+    .recommendation-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+</style>
+<!-- ============================================================ -->
+
+{% endblock %}
