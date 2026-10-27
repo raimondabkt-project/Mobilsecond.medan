@@ -8,7 +8,7 @@ import os
 main_bp = Blueprint('main', __name__)
 
 
-# ==================== HALAMAN UTAMA ====================
+
 @main_bp.route('/')
 def home():
     recommended_cars = (
@@ -91,7 +91,7 @@ def favorit():
     return render_template('favorit.html', favorites=favorite_cars)
 
 
-# ==================== DASHBOARD ADMIN ====================
+
 @main_bp.route('/admin/dashboard')
 @login_required
 def dashboard_admin():
@@ -103,8 +103,6 @@ def dashboard_admin():
     sellers = User.query.filter_by(role='seller').all()
     return render_template('dashboard_admin.html', mobils=mobils, sellers=sellers)
 
-
-# ==================== DASHBOARD SELLER ====================
 @main_bp.route('/seller/dashboard')
 @login_required
 def dashboard_seller():
@@ -116,7 +114,7 @@ def dashboard_seller():
     return render_template('dashboard_seller.html', mobils=mobils)
 
 
-# ==================== TAMBAH UNIT (ADMIN) ====================
+
 @main_bp.route('/admin/tambah-unit', methods=['POST'])
 @login_required
 def tambah_unit():
@@ -173,13 +171,13 @@ def tambah_unit():
 
         db.session.commit()
 
-        # ==================== INDEX KE ELASTICSEARCH ====================
+        
         try:
             index_mobil(mobil)
             print(f"✅ Mobil {mobil.kode_mobil} berhasil di-index ke Elasticsearch")
         except Exception as e:
             print(f"⚠️ Gagal index ke Elasticsearch: {e}")
-        # ============================================================
+        
 
         flash('✅ Unit mobil + foto berhasil ditambahkan!', 'success')
         return redirect(url_for('main.dashboard_admin'))
@@ -190,7 +188,7 @@ def tambah_unit():
         return redirect(url_for('main.dashboard_admin'))
 
 
-# ==================== TAMBAH SELLER ====================
+
 @main_bp.route('/admin/tambah-seller', methods=['POST'])
 @login_required
 def tambah_seller():
@@ -228,7 +226,7 @@ def tambah_seller():
     return redirect(url_for('main.dashboard_admin'))
 
 
-# ==================== EDIT UNIT (ADMIN) ====================
+
 @main_bp.route('/admin/edit-unit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_unit(id):
@@ -277,13 +275,13 @@ def edit_unit(id):
 
             db.session.commit()
 
-            # ==================== RE-INDEX KE ELASTICSEARCH ====================
+            
             try:
                 index_mobil(mobil)
                 print(f"✅ Mobil {mobil.kode_mobil} berhasil di-update di Elasticsearch")
             except Exception as e:
                 print(f"⚠️ Gagal update index Elasticsearch: {e}")
-            # ============================================================
+            
 
             flash('✅ Data mobil berhasil diperbarui!', 'success')
             return redirect(url_for('main.dashboard_admin'))
@@ -299,7 +297,7 @@ def edit_unit(id):
                            sellers=User.query.filter_by(role='seller').all())
 
 
-# ==================== HAPUS UNIT ====================
+
 @main_bp.route('/admin/hapus-unit/<int:id>')
 @login_required
 def hapus_unit(id):
@@ -310,7 +308,7 @@ def hapus_unit(id):
     return redirect(url_for('main.dashboard_admin'))
 
 
-# ==================== EDIT SELLER ====================
+
 @main_bp.route('/admin/edit-seller/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_seller(id):
@@ -342,7 +340,7 @@ def edit_seller(id):
                            sellers=User.query.filter_by(role='seller').all())
 
 
-# ==================== HAPUS SELLER ====================
+
 @main_bp.route('/admin/hapus-seller/<int:id>')
 @login_required
 def hapus_seller(id):
@@ -352,8 +350,22 @@ def hapus_seller(id):
     flash('✅ Seller berhasil dihapus!', 'success')
     return redirect(url_for('main.dashboard_admin'))
 
+def generate_kode_mobil():
+    """Generate kode mobil otomatis (MB001, MB002, dst)"""
+    last_mobil = Mobil.query.order_by(Mobil.id.desc()).first()
+    
+    if last_mobil and last_mobil.kode_mobil.startswith('MB'):
+        try:
+            last_number = int(last_mobil.kode_mobil.replace('MB', ''))
+            new_number = last_number + 1
+        except:
+            new_number = 1
+    else:
+        new_number = 1
+    
+    return f"MB{new_number:03d}"   # Hasil: MB001, MB002, MB015, dst
 
-# ==================== TAMBAH UNIT SELLER ====================
+
 @main_bp.route('/seller/tambah-unit', methods=['POST'])
 @login_required
 def tambah_unit_seller():
@@ -362,7 +374,7 @@ def tambah_unit_seller():
         return redirect(url_for('main.home'))
 
     try:
-        kode_mobil = request.form.get('kode_mobil')
+        kode_mobil = generate_kode_mobil()
         merek = request.form.get('merek')
         model = request.form.get('model')
         tahun = int(request.form.get('tahun'))
@@ -410,13 +422,13 @@ def tambah_unit_seller():
 
         db.session.commit()
 
-        # ==================== INDEX KE ELASTICSEARCH ====================
+        
         try:
             index_mobil(mobil)
             print(f"✅ Mobil {mobil.kode_mobil} berhasil di-index ke Elasticsearch")
         except Exception as e:
             print(f"⚠️ Gagal index ke Elasticsearch: {e}")
-        # ============================================================
+        
 
         flash('✅ Unit mobil berhasil ditambahkan!', 'success')
         return redirect(url_for('main.dashboard_seller'))
@@ -428,7 +440,7 @@ def tambah_unit_seller():
         return redirect(url_for('main.dashboard_seller'))
 
 
-# ==================== EDIT UNIT SELLER ====================
+
 @main_bp.route('/seller/edit-unit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_unit_seller(id):
@@ -477,13 +489,13 @@ def edit_unit_seller(id):
 
             db.session.commit()
 
-            # ==================== RE-INDEX KE ELASTICSEARCH ====================
+            
             try:
                 index_mobil(mobil)
                 print(f"✅ Mobil {mobil.kode_mobil} berhasil di-update di Elasticsearch")
             except Exception as e:
                 print(f"⚠️ Gagal update index Elasticsearch: {e}")
-            # ============================================================
+            
 
             flash('✅ Data mobil berhasil diperbarui!', 'success')
             return redirect(url_for('main.dashboard_seller'))
@@ -519,7 +531,7 @@ def hapus_unit_seller(id):
     return redirect(url_for('main.dashboard_seller'))
 
 
-# ==================== UBAH STATUS MOBIL ====================
+
 @main_bp.route('/ubah-status/<int:id>', methods=['POST'])
 @login_required
 def ubah_status(id):
@@ -542,7 +554,7 @@ def ubah_status(id):
     return redirect(url_for('main.dashboard_seller'))
 
 
-# ==================== TOGGLE REKOMENDASI ====================
+
 @main_bp.route('/admin/toggle-recommend/<int:id>', methods=['POST'])
 @login_required
 def toggle_recommend(id):
@@ -558,7 +570,7 @@ def toggle_recommend(id):
     return redirect(url_for('main.dashboard_admin'))
 
 
-# ==================== KELOLA MOBIL FAVORIT ====================
+
 @main_bp.route('/admin/kelola-favorit', methods=['GET', 'POST'])
 @login_required
 def kelola_favorit():
@@ -588,7 +600,7 @@ def kelola_favorit():
                            favorite_count=favorite_count)
 
 
-# ==================== UPDATE WHATSAPP ADMIN ====================
+
 @main_bp.route('/admin/update-whatsapp', methods=['POST'])
 @login_required
 def update_whatsapp():

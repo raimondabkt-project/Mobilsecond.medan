@@ -15,7 +15,7 @@ def create_app():
 
     app.config.from_object(Config)
 
-    # ==================== KONFIGURASI UPLOAD GAMBAR ====================
+    
     app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static', 'uploads')
     app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -23,7 +23,7 @@ def create_app():
     print("✅ Static folder:", app.static_folder)
     print("✅ Static URL path:", app.static_url_path)
 
-    # ==================== FILTER FORMAT RUPIAH ====================
+    
     def format_rupiah(value):
         if value is None:
             return "Rp 0,00"
@@ -56,7 +56,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
-    # ==================== SEED DATA (HANYA ADMIN & SELLER) ====================
+    
     with app.app_context():
         db.create_all()
 
@@ -76,7 +76,7 @@ def create_app():
 
         db.session.commit()
 
-    # ==================== CONTEXT PROCESSOR ====================
+    
     @app.context_processor
     def inject_admin_whatsapp():
         from models import User

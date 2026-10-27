@@ -20,7 +20,7 @@
         .navbar-brand { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; }
         footer { background: #111; color: #aaa; }
 
-        /* ==================== RESPONSIVE MOBILE ==================== */
+        
         @media (max-width: 768px) {
             .navbar-brand {
                 font-size: 1.15rem !important;
@@ -49,7 +49,7 @@
 </head>
 <body>
 
-    <!-- ==================== NAVBAR ==================== -->
+    
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: #111;">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
@@ -69,7 +69,7 @@
                     <li class="nav-item"><a class="nav-link" href="/favorit">Favorit</a></li>
                 </ul>
 
-                <!-- ==================== USER MENU (SUDAH DIPERBAIKI UNTUK HP) ==================== -->
+                
                 <div class="d-flex align-items-center gap-2">
                     {% if current_user.is_authenticated %}
                         
@@ -115,13 +115,13 @@
                         <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-sm">Daftar</a>
                     {% endif %}
                 </div>
-                <!-- ==================== END USER MENU ==================== -->
+                
 
             </div>
         </div>
     </nav>
 
-    <!-- ==================== FLASH MESSAGES ==================== -->
+    
     <div class="container mt-2">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -139,10 +139,10 @@
         {% endwith %}
     </div>
 
-    <!-- ==================== CONTENT ==================== -->
+    
     {% block content %}{% endblock %}
 
-    <!-- ==================== FOOTER ==================== -->
+    
     <footer class="bg-dark text-white pt-5 pb-4 mt-5">
         <div class="container">
             <div class="row">
@@ -179,7 +179,7 @@
         </div>
     </footer>
 
-    <!-- ==================== FLOATING WHATSAPP ==================== -->
+    
     {% if admin_whatsapp %}
     <a href="https://wa.me/{{ admin_whatsapp }}" 
        class="position-fixed bottom-0 end-0 m-3 btn btn-success rounded-circle shadow"

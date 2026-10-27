@@ -1,0 +1,28 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables & Sensitif (Password/API Key)
+.env
+*.env
+
+# Cache & Files Sementara Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Instance & Database Lokal
+instance/
+*.db
+*.sqlite3
+
+# VS Code & IDE Settings
+.vscode/
+.idea/
+*.swp
+
+# Docker & Log Lokal
+*.log

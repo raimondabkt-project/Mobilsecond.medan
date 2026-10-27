@@ -3,13 +3,12 @@ from flask_login import login_required
 
 admin_bp = Blueprint('admin', __name__)
 
-# Dashboard Admin
 @admin_bp.route('/dashboard_admin')
 @login_required
 def dashboard_admin():
     return render_template('dashboard_admin.html')
 
-# Dashboard Seller
+
 @admin_bp.route('/dashboard_seller')
 @login_required
 def dashboard_seller():

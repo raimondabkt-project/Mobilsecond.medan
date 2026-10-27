@@ -19,7 +19,7 @@
     .left-side {
         flex: 6;
         background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.78)),
-                    url('{{ url_for('static', filename='images/background.jpg.png') }}') center/cover no-repeat;
+                    url('{{ url_for('static', filename='images/background.jpg.png') }}') left 60% / cover no-repeat;
         position: relative;
         display: flex;
         align-items: center;
@@ -136,7 +136,7 @@
 {% block content %}
 <div class="split-container">
     
-    <!-- Kiri - Background (Desktop Only) -->
+    
     <div class="left-side">
         <div class="welcome-text">
             <h1>Halo!</h1>
@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <!-- Kanan - Form Login -->
+    
     <div class="right-side">
         <div class="login-card">
             <div class="text-center mb-4">
@@ -152,7 +152,7 @@
                 <p class="text-muted">Pilih role terlebih dahulu</p>
             </div>
 
-            <!-- PILIHAN ROLE -->
+            
             <div class="role-selection">
                 <div class="role-btn" onclick="selectRole('admin', this)">
                     <i class="fas fa-user-shield text-primary"></i>

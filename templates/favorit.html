@@ -15,7 +15,7 @@
         <div class="col-md-6 col-lg-4">
             <div class="card h-100 shadow-sm border-0">
 
-                <!-- ==================== GAMBAR FAVORIT (Multiple Foto) ==================== -->
+                
                 {% if mobil.fotos and mobil.fotos|length > 0 %}
                     {% set foto_utama = mobil.fotos|sort(attribute='urutan')|first %}
                     <img src="{{ url_for('static', filename='uploads/' + foto_utama.nama_file) }}" 

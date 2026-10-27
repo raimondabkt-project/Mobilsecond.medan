@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-# ==================== TABEL USER (Admin + Seller) ====================
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     
@@ -15,9 +15,9 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), default='aktif')
 
-    # ==================== KOLOM WHATSAPP ADMIN ====================
+    
     whatsapp_number = db.Column(db.String(20), nullable=True)  # Format: 62812xxxxxxx
-    # ============================================================
+    
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,9 +41,9 @@ class Mobil(db.Model):
     gambar = db.Column(db.String(255))
     status = db.Column(db.String(20), default='Ready', nullable=False)
     
-    # ==================== TAMBAHKAN BARIS INI ====================
+    
     uploaded_by_role = db.Column(db.String(20), default='admin', nullable=False)
-    # ============================================================
+    
 
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     seller = db.relationship('User', backref=db.backref('mobils', lazy=True))
